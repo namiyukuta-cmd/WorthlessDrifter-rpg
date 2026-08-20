@@ -165,7 +165,7 @@ function applyCompanionUi(){
   let petNav=document.querySelector('nav button[data-screen="pet"]');
   if(petNav)petNav.style.display=comp?'':'none';
   let indexPanel=$('petIndexPanel');
-  if(indexPanel)indexPanel.style.display=comp?'':'none';
+  if(indexPanel)indexPanel.style.display=comp?'block':'none';
   if(!comp)return;
   let face=document.querySelector('#pet .pet-face');
   let name=document.querySelector('#pet .panel:first-child strong');
