@@ -1,0 +1,3 @@
+const clone=o=>JSON.parse(JSON.stringify(o)),fresh=name=>({characterName:name||'旅人',day:1,location:'街道沿い',health:10,maxHealth:10,hunger:2,maxHunger:10,thirst:2,maxThirst:10,money:380,humanMax:18,petMax:8,items:clone(baseItems)}),$=id=>document.getElementById(id);
+let store={slots:{}},saveMode='data',activeId=null,state=fresh('未選択'),openId=null,drag=null,dirty=false,loadingSaves=false,githubToken=localStorage.getItem(TOKEN_KEY)||sessionStorage.getItem('drifter-github-token-session')||'';if(githubToken){localStorage.setItem(TOKEN_KEY,githubToken);sessionStorage.removeItem('drifter-github-token-session')}
+const item=id=>state.items.find(x=>x.id===id),kids=id=>state.items.filter(x=>x.parent==='container:'+id);
