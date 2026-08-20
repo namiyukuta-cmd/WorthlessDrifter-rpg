@@ -31,8 +31,45 @@ function installHomeStyles(){
   `;
   document.head.appendChild(style)
 }
+function installGameLayout(){
+  if(!document.getElementById('gameLayoutStyles')){
+    let style=document.createElement('style');
+    style.id='gameLayoutStyles';
+    style.textContent=`
+    .app>header{height:56px;padding:8px 8px;gap:5px}
+    .app>header>div:first-child{min-width:0;flex:1 1 auto}
+    .app>header .title{font-size:11px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .app>header .charline{font-size:9px}
+    .app>header .header-actions{display:flex;align-items:center;gap:3px;flex:0 0 auto}
+    .app>header .header-actions button{padding:6px 4px;font-size:9px;white-space:nowrap;min-width:0}
+    .app>header .save-state{font-size:8px;min-width:22px}
+    .pet-index-panel{display:none}
+    .pet-index-head{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+    .pet-index-head h2{margin:0}.pet-index-icon{font-size:22px}
+    @media(max-width:390px){.app>header .title{font-size:10px}.app>header .header-actions button{font-size:8px;padding:6px 3px}.app>header .save-state{min-width:18px}}
+    `;
+    document.head.appendChild(style)
+  }
+  let actions=document.querySelector('.header-actions');
+  if(actions&&!$('homeBtn')){
+    let b=document.createElement('button');
+    b.id='homeBtn';b.textContent='HOME';
+    actions.insertBefore(b,$('saveBtn')||actions.firstChild)
+  }
+  let index=$('index');
+  if(index){
+    index.querySelector('.buttons')?.remove();
+    if(!$('petIndexPanel')){
+      let panel=document.createElement('div');
+      panel.id='petIndexPanel';panel.className='panel pet-index-panel';
+      panel.innerHTML='<div class="pet-index-head"><span id="petIndexIcon" class="pet-index-icon">🐾</span><h2 id="petIndexName">同行動物</h2></div><div class="stats"><div class="stat"><small>体力</small><strong id="petIndexHealth">—</strong></div><div class="stat"><small>携行重量</small><strong id="petIndexWeight">—</strong></div><div class="stat"><small>1日の食料</small><strong id="petIndexFood">—</strong></div><div class="stat"><small>1日の水</small><strong id="petIndexWater">—</strong></div></div>';
+      index.appendChild(panel)
+    }
+  }
+}
 function installHomeDom(){
   installHomeStyles();
+  installGameLayout();
   if(!document.getElementById('homeLayer')){
     let home=document.createElement('div');
     home.id='homeLayer';home.className='home-layer';
@@ -123,6 +160,7 @@ function currentCompanion(){
   return state.companion
 }
 function applyCompanionUi(){
+  installGameLayout();
   let comp=currentCompanion();
   let petNav=document.querySelector('nav button[data-screen="pet"]');
   if(petNav)petNav.style.display=comp?'':'none';
