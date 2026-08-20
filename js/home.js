@@ -49,6 +49,7 @@ function installHomeDom(){
   $('homeLoad').onclick=()=>openLoad();
   $('homeData').onclick=()=>openSave(true,'data');
   $('homeNew').onclick=openNewGame;
+  if($('homeBtn'))$('homeBtn').onclick=showHome;
   $('closeNewGame').onclick=closeNewGame;
   $('newGameLayer').onclick=e=>{if(e.target===$('newGameLayer'))closeNewGame()};
   $('nextCompanion').onclick=()=>showNewGameStep(2);
@@ -73,6 +74,7 @@ function showHome(){
   document.querySelector('.app').style.display='none';
   $('homeLayer').style.display='flex';
   closeStorage();
+  closeSave();
   closeHealth?.()
 }
 function enterGame(){
@@ -123,16 +125,22 @@ function currentCompanion(){
 function applyCompanionUi(){
   let comp=currentCompanion();
   let petNav=document.querySelector('nav button[data-screen="pet"]');
-  let petGo=document.querySelector('[data-go="pet"]');
   if(petNav)petNav.style.display=comp?'':'none';
-  if(petGo)petGo.style.display=comp?'':'none';
+  let indexPanel=$('petIndexPanel');
+  if(indexPanel)indexPanel.style.display=comp?'':'none';
   if(!comp)return;
   let face=document.querySelector('#pet .pet-face');
   let name=document.querySelector('#pet .panel:first-child strong');
   let note=document.querySelector('#pet .panel:first-child .note');
   if(face)face.textContent=comp.icon||'🐾';
   if(name)name.textContent=comp.name||comp.label||'同行動物';
-  if(note)note.textContent='体力 '+(comp.health??comp.maxHealth??0)+' / '+(comp.maxHealth??comp.health??0)+' ・ 1日 食料 '+(comp.dailyFood??0)+' ／ 水 '+(comp.dailyWater??0)
+  if(note)note.textContent='体力 '+(comp.health??comp.maxHealth??0)+' / '+(comp.maxHealth??comp.health??0)+' ・ 1日 食料 '+(comp.dailyFood??0)+' ／ 水 '+(comp.dailyWater??0);
+  if($('petIndexIcon'))$('petIndexIcon').textContent=comp.icon||'🐾';
+  if($('petIndexName'))$('petIndexName').textContent=comp.name||comp.label||'同行動物';
+  if($('petIndexHealth'))$('petIndexHealth').textContent=(comp.health??comp.maxHealth??0)+' / '+(comp.maxHealth??comp.health??0);
+  if($('petIndexWeight'))$('petIndexWeight').textContent=topWeight('pet').toFixed(1)+' / '+Number(state.petMax??0).toFixed(1)+' kg';
+  if($('petIndexFood'))$('petIndexFood').textContent=String(comp.dailyFood??0);
+  if($('petIndexWater'))$('petIndexWater').textContent=String(comp.dailyWater??0)
 }
 const originalRenderForCompanion=render;
 render=function(){originalRenderForCompanion();applyCompanionUi()};
