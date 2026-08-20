@@ -7,6 +7,7 @@ function installIndexLayoutStyles(){
   .index-params,.index-actions,.index-main-view,.index-bottom{background:#fffaf3;border:1px solid #ad9985;border-radius:10px;box-shadow:0 2px 0 #d4c6b5}
   .index-params{padding:5px 4px;display:flex;flex-direction:column;gap:5px;min-width:0}
   .index-param-title{font-size:8px;font-weight:900;text-align:center;line-height:1.15;padding:4px 1px;border-bottom:1px solid #d8c9b9;overflow-wrap:anywhere}
+  .index-param-title h2{margin:0;font:inherit;line-height:inherit;overflow-wrap:anywhere}
   .index-params .stat{padding:5px 2px!important;border-radius:7px!important;text-align:center;min-width:0;background:#fffdf9}
   .index-params .stat small{font-size:7px;line-height:1.1;margin-bottom:2px}
   .index-params .stat small span{display:none}
