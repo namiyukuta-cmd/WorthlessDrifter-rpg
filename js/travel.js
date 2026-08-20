@@ -55,7 +55,7 @@ function beginRoute(toId){
   let r=found.route;if(r.permit&&!t.permits.includes(r.permit))return toast('この先へ進む通行許可証がありません');
   t.routeId=r.id;t.routeFrom=t.currentNodeId;t.routeTo=toId;t.routeProgressKm=0;t.currentNodeId=null;t.phase='ready';t.seenEventPoints=[];
   state.location=(travelNode(t.routeFrom)?.name||'出発地')+' → '+(travelNode(toId)?.name||'目的地');
-  t.lastSummary=(travelNode(toId)?.name||'目的地')へ向かう道に入った。';markDirty();render()
+  t.lastSummary=(travelNode(toId)?.name||'目的地')+'へ向かう道に入った。';markDirty();render()
 }
 function crossedPoint(route,point,oldP,newP,from){let a0=from===route.a?oldP:route.distance-oldP,a1=from===route.a?newP:route.distance-newP;return Math.min(a0,a1)<point.km&&Math.max(a0,a1)>=point.km}
 function travelEvent(route,oldP,newP,mode,night=false){
