@@ -2,7 +2,7 @@
   "version": 1,
   "id": "Dmt1f617stjck5",
   "name": "旅人",
-  "updatedAt": 1787224278110,
+  "updatedAt": 1787224378918,
   "state": {
     "characterName": "旅人",
     "day": 1,
@@ -24,13 +24,13 @@
         "h": 2,
         "weight": 0.4,
         "parent": "main",
-        "x": 0,
-        "y": 0,
         "inner": {
           "cols": 4,
           "rows": 3,
           "maxWeight": 4
-        }
+        },
+        "x": 0,
+        "y": 0
       },
       {
         "id": "bottle",
@@ -89,8 +89,8 @@
         "h": 1,
         "weight": 0.35,
         "parent": "main",
-        "x": 2,
-        "y": 5
+        "x": 3,
+        "y": 0
       },
       {
         "id": "soap",
@@ -100,9 +100,9 @@
         "w": 1,
         "h": 1,
         "weight": 0.18,
-        "parent": "main",
+        "parent": "container:bag",
         "x": 2,
-        "y": 4
+        "y": 0
       },
       {
         "id": "pot",
