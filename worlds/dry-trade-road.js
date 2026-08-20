@@ -1,0 +1,30 @@
+WORLD_DATA['dry-trade-road']={
+  id:'dry-trade-road',
+  name:'乾いた交易路',
+  climate:'arid',
+  startNode:'dune-village',
+  startingKnownNodes:['dune-village','well-post','ochre-town'],
+  startingKnownRoutes:['r1','r2'],
+  weather:[
+    {id:'clear',label:'晴れ',weight:50,factor:1,eventFactor:1},
+    {id:'heat',label:'酷暑',weight:25,factor:.82,eventFactor:1.05},
+    {id:'wind',label:'強風',weight:15,factor:.9,eventFactor:1.08},
+    {id:'sandstorm',label:'砂嵐',weight:10,factor:.55,eventFactor:1.35}
+  ],
+  nodes:{
+    'dune-village':{id:'dune-village',name:'砂丘の村',type:'村',x:12,y:72,description:'乾いた井戸と土壁の家が並ぶ小村。'},
+    'well-post':{id:'well-post',name:'井戸宿',type:'隊商宿',x:42,y:58,description:'交易路の途中にある井戸と宿。'},
+    'ochre-town':{id:'ochre-town',name:'黄土の町',type:'町',x:30,y:25,description:'市場の立つ小さな町。'},
+    'blue-oasis':{id:'blue-oasis',name:'青泉村',type:'村',x:62,y:30,description:'オアシスを囲んでできた集落。'},
+    'ash-river':{id:'ash-river',name:'灰河の町',type:'町',x:82,y:56,description:'乾季にも水の残る河畔の町。'},
+    'stone-gate':{id:'stone-gate',name:'石門都市',type:'都市',x:91,y:16,description:'城壁に囲まれた遠方の都市。東方通行証が必要。'}
+  },
+  routes:{
+    r1:{id:'r1',a:'dune-village',b:'well-post',distance:22,terrain:'desert',terrainLabel:'砂漠',road:'trade',roadLabel:'交易街道',quality:'good',danger:.03},
+    r2:{id:'r2',a:'dune-village',b:'ochre-town',distance:29,terrain:'dry_plain',terrainLabel:'乾燥平原',road:'old-road',roadLabel:'古い街道',quality:'fair',danger:.05,eventPoints:[{km:18,label:'崩れた石橋',chance:.45}]},
+    r3:{id:'r3',a:'well-post',b:'blue-oasis',distance:35,terrain:'desert',terrainLabel:'砂漠',road:'caravan-track',roadLabel:'隊商路',quality:'fair',danger:.07,eventPoints:[{km:17,label:'風化した石標',chance:.65}]},
+    r4:{id:'r4',a:'ochre-town',b:'blue-oasis',distance:26,terrain:'scrub',terrainLabel:'低木地',road:'local-road',roadLabel:'地方道',quality:'fair',danger:.05},
+    r5:{id:'r5',a:'blue-oasis',b:'ash-river',distance:44,terrain:'dry_plain',terrainLabel:'乾燥平原',road:'trade',roadLabel:'交易街道',quality:'good',danger:.06,eventPoints:[{km:28,label:'街道の祠',chance:.55}]},
+    r6:{id:'r6',a:'ash-river',b:'stone-gate',distance:38,terrain:'dry_plain',terrainLabel:'乾燥平原',road:'trade',roadLabel:'東方街道',quality:'good',danger:.04,permit:'east-pass'}
+  }
+};
