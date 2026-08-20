@@ -1,0 +1,57 @@
+name: oneoff-fix-load-save-manager
+on:
+  push:
+    branches:
+      - fix-load-save-manager
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.event.head_commit.message != 'Fix LOAD and save list'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch load and save manager
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          s = s.replace("let store={slots:{}},activeId=null,state=fresh('未選択')", "let store={slots:{}},saveMode='data',activeId=null,state=fresh('未選択')", 1)
+
+          start = s.index('async function refreshSaves()')
+          end = s.index('async function saveCurrent()', start)
+          refresh = """async function refreshSaves(){if(loadingSaves)return;loadingSaves=true;renderSaveList();try{let files=[];try{let list=await ghJson(apiUrl('contents/'+SAVE_DIR)+'?ref='+encodeURIComponent(SAVE_BRANCH));if(Array.isArray(list))files=list.filter(x=>x.type==='file'&&x.name.endsWith('.json'))}catch(e){if(e.status!==404)throw e}let vals=await Promise.all(files.map(async f=>{let data=await ghJson(f.url);let s=JSON.parse(fromBase64(data.content));s._sha=data.sha;return s}));store.slots={};for(let s of vals.filter(Boolean)){if(s?.id&&s?.state)store.slots[s.id]=s}renderSaveList()}catch(e){store.slots={};let msg=friendlyError(e);renderSaveList(msg);updateGitHubStatus(msg,true)}finally{loadingSaves=false;renderSaveList()}}\n"""
+          s = s[:start] + refresh + s[end:]
+
+          start = s.index('function loadSlot(id)')
+          end = s.index('async function renameSlot', start)
+          load = """function loadSlot(id){if(id===activeId){closeSave();toast('ロードしました');return}if(dirty&&!confirm('保存していない変更があります。保存せずに別キャラをロードしますか？'))return;let slot=store.slots[id];if(!slot)return;activeId=id;state=clone(slot.state);state.characterName=slot.name||state.characterName||'旅人';dirty=false;closeStorage();closeSave();render();updateSaveState();toast('ロードしました')}\n"""
+          s = s[:start] + load + s[end:]
+
+          start = s.index('function renderSaveList(')
+          end = s.index('function esc(', start)
+          render_list = """function renderSaveList(error=''){let l=$('saveList');l.innerHTML='';if(loadingSaves){l.innerHTML='<div class=\"note\">GitHubから読み込み中…</div>';return}if(error){l.innerHTML='<div class=\"note\">'+esc(error)+'</div>';return}let entries=Object.values(store.slots).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));if(!entries.length){l.innerHTML='<div class=\"note\">GitHubのセーブデータはまだありません。</div>';return}for(let s of entries){let e=document.createElement('div');e.className='save-slot'+(s.id===activeId?' active':'');let actions=saveMode==='load'?'<button data-load=\"'+s.id+'\">LOAD</button>':'<button data-rename=\"'+s.id+'\">名前変更</button><button class=\"danger\" data-delete=\"'+s.id+'\">削除</button>';e.innerHTML='<div class=\"save-slot-top\"><div><div class=\"save-slot-name\">'+esc(s.name||'旅人')+'</div><div class=\"save-slot-date\">GitHub保存 '+formatDate(s.updatedAt)+(s.id===activeId&&dirty?' ・ 現在は未保存変更あり':'')+'</div></div>'+(s.id===activeId?'<strong>使用中</strong>':'')+'</div><div class=\"save-slot-actions\">'+actions+'</div>';l.appendChild(e)}if(saveMode==='load'){l.querySelectorAll('[data-load]').forEach(x=>x.onclick=()=>loadSlot(x.dataset.load))}else{l.querySelectorAll('[data-rename]').forEach(x=>x.onclick=()=>renameSlot(x.dataset.rename));l.querySelectorAll('[data-delete]').forEach(x=>x.onclick=()=>deleteSlot(x.dataset.delete))}}\n"""
+          s = s[:start] + render_list + s[end:]
+
+          start = s.index('function openSave(')
+          end = s.index('function closeSave()', start)
+          open_funcs = """function setSaveMode(mode){saveMode=mode;let loadOnly=mode==='load';let title=document.querySelector('.save-head h2');if(title)title.textContent=loadOnly?'LOAD':'GitHubセーブデータ';let intro=document.querySelector('.save-box>.note');if(intro)intro.textContent=loadOnly?'GitHubに保存されたセーブデータを選んでロードします。':'キャラクターごとにGitHubの main ブランチの saves/characters へJSONファイルとして保存します。';let auth=document.querySelector('.github-box');if(auth)auth.style.display=loadOnly?'none':'';$('newSave').style.display=loadOnly?'none':'';let toolbar=document.querySelector('.save-toolbar');if(toolbar)toolbar.style.display=loadOnly?'none':''}\nfunction openSave(refresh=true,mode='data'){setSaveMode(mode);$('saveLayer').classList.add('open');updateGitHubStatus();renderSaveList();if(refresh)refreshSaves()}\nfunction openLoad(){openSave(true,'load')}\n"""
+          s = s[:start] + open_funcs + s[end:]
+
+          old = "$('loadBtn').addEventListener('click',()=>openSave());$('dataBtn').addEventListener('click',()=>openSave());"
+          new = "$('loadBtn').addEventListener('click',openLoad);$('dataBtn').addEventListener('click',()=>openSave(true,'data'));"
+          if old not in s:
+              raise SystemExit('load/data listener pattern not found')
+          s = s.replace(old, new, 1)
+
+          p.write_text(s, encoding='utf-8')
+          Path('.github/workflows/oneoff-fix-load-save-manager.yml').unlink()
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- index.html .github/workflows/oneoff-fix-load-save-manager.yml
+          git commit -m "Fix LOAD and save list"
+          git push
