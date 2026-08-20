@@ -1,5 +1,6 @@
 function currentCompanion(){
   if(state.companion===undefined){
+    if(!activeId)return null;
     state.companion={type:'dog',label:'犬',icon:'🐕',name:'ムギ',health:15,maxHealth:15,dailyFood:1};
     if(state.petMax==null)state.petMax=8
   }
@@ -10,11 +11,10 @@ function ensureCompanionFeedItems(){
     if(it.id==='petfood'&&!it.companionFeed)it.companionFeed={remove:true}
   }
 }
-function companionCarried(it){
+function companionOwns(it){
   let p=it?.parent,seen=new Set();
   while(p){
-    if(p==='pet')return true;
-    if(p==='main'||p==='loose')return false;
+    if(p==='pet'||p==='main'||p==='loose')return true;
     if(!p.startsWith('container:'))return false;
     let id=p.slice(10);
     if(seen.has(id))return false;
@@ -25,7 +25,7 @@ function companionCarried(it){
 }
 function companionFeedItems(){
   ensureCompanionFeedItems();
-  return (state.items||[]).filter(it=>companionCarried(it)&&it.companionFeed)
+  return (state.items||[]).filter(it=>companionOwns(it)&&it.companionFeed)
 }
 function installCompanionStyles(){
   if(document.getElementById('companionStyles'))return;
@@ -110,7 +110,7 @@ function renderCompanionRecovery(){
     actions.appendChild(b)
   }
   if(!feeds.length){
-    let n=document.createElement('div');n.className='note';n.textContent='ペット側に餌を持っていません。';actions.appendChild(n)
+    let n=document.createElement('div');n.className='note';n.textContent='餌を持っていません。';actions.appendChild(n)
   }
 }
 function openCompanionRecovery(){
@@ -122,7 +122,7 @@ function openCompanionRecovery(){
 function closeCompanionRecovery(){$('companionRecoveryLayer')?.classList.remove('open')}
 function useCompanionFeed(id){
   let comp=currentCompanion(),it=item(id);
-  if(!comp||!it||!companionCarried(it)||!it.companionFeed)return;
+  if(!comp||!it||!companionOwns(it)||!it.companionFeed)return;
   let max=comp.maxHealth??comp.health??0,old=comp.health??max;
   if(old>=max)return toast('体力は満タンです');
   let amount=it.companionFeed.amount??COMPANION_RULES.feedRecovery;
