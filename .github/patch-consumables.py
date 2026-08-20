@@ -1,0 +1,30 @@
+from pathlib import Path
+p=Path('index.html')
+s=p.read_text(encoding='utf-8')
+s=s.replace("{id:'bottle',name:'水筒',icon:'💧',kind:'water',w:1,h:2,weight:1.1,parent:'main',x:2,y:0}","{id:'bottle',name:'水筒',icon:'💧',kind:'water',w:1,h:2,weight:1.1,parent:'main',x:2,y:0,consume:{type:'drink',amount:3,uses:3,maxUses:3,emptyWeight:.2,unitWeight:.3}}",1)
+s=s.replace("{id:'bread',name:'パン',icon:'🥖',kind:'food',w:2,h:1,weight:.35,parent:'loose'}","{id:'bread',name:'パン',icon:'🥖',kind:'food',w:2,h:1,weight:.35,parent:'loose',consume:{type:'food',amount:3,remove:true}}",1)
+s=s.replace("hunger:2,maxHunger:10,money:380","hunger:2,maxHunger:10,thirst:2,maxThirst:10,money:380",1)
+old='<div class="stat"><small>空腹</small><strong id="hungerValue">2 / 10</strong></div><div class="stat"><small>所持金</small>'
+new='<div class="stat"><small>空腹</small><strong id="hungerValue">2 / 10</strong></div><div class="stat"><small>喉の渇き</small><strong id="thirstValue">2 / 10</strong></div><div class="stat"><small>所持金</small>'
+if old not in s: raise SystemExit('stats pattern not found')
+s=s.replace(old,new,1)
+marker='function total(it,seen=new Set())'
+insert="""function ensureConsumables(){if(state.thirst==null)state.thirst=2;if(state.maxThirst==null)state.maxThirst=10;let b=item('bottle');if(b&&!b.consume)b.consume={type:'drink',amount:3,uses:3,maxUses:3,emptyWeight:.2,unitWeight:.3};let br=item('bread');if(br&&!br.consume)br.consume={type:'food',amount:3,remove:true};if(b?.consume?.type==='drink'){if(b.consume.uses==null)b.consume.uses=b.consume.maxUses??3;if(b.consume.maxUses==null)b.consume.maxUses=3;if(b.consume.emptyWeight==null)b.consume.emptyWeight=.2;if(b.consume.unitWeight==null)b.consume.unitWeight=.3;b.weight=b.consume.emptyWeight+b.consume.unitWeight*b.consume.uses;if(b.consume.uses<=0)b.name='空の水筒'}}
+function consumeItem(id){let it=item(id);if(!it?.consume)return;let c=it.consume;if(c.type==='food'){if((state.hunger??0)<=0)return toast('今はお腹が空いていません');state.hunger=Math.max(0,(state.hunger??0)-(c.amount||1));let eatenName=it.name;if(c.remove)state.items=state.items.filter(x=>x.id!==id);markDirty();render();$('info').innerHTML='<strong>食べました</strong>';toast(eatenName+'を食べました');return}if(c.type==='drink'){if((c.uses??0)<=0)return toast('水筒は空です');if((state.thirst??0)<=0)return toast('今は喉が渇いていません');state.thirst=Math.max(0,(state.thirst??0)-(c.amount||1));c.uses=Math.max(0,(c.uses??0)-1);it.weight=(c.emptyWeight??.2)+(c.unitWeight??.3)*c.uses;if(c.uses<=0)it.name='空の水筒';markDirty();render();info(it);toast('水を飲みました')}}
+"""
+if marker not in s: raise SystemExit('total marker not found')
+s=s.replace(marker,insert+marker,1)
+old_render="function render(){let h=topWeight('main'),p=topWeight('pet');$('indexWeight').textContent=h.toFixed(1);$('mainWeight').textContent=h.toFixed(1);$('petWeight').textContent=p.toFixed(1);$('charIndexName').textContent=state.characterName||'旅人';$('headerChar').textContent=activeId?(state.characterName||'旅人'):'セーブ未選択';$('dayValue').textContent=state.day??1;$('locationValue').textContent=state.location||'街道沿い';$('healthValue').textContent=(state.health??10)+' / '+(state.maxHealth??10);$('hungerValue').textContent=(state.hunger??2)+' / '+(state.maxHunger??10);$('moneyValue').textContent='¥'+(state.money??380);"
+new_render="function render(){ensureConsumables();let h=topWeight('main'),p=topWeight('pet');$('indexWeight').textContent=h.toFixed(1);$('mainWeight').textContent=h.toFixed(1);$('petWeight').textContent=p.toFixed(1);$('charIndexName').textContent=state.characterName||'旅人';$('headerChar').textContent=activeId?(state.characterName||'旅人'):'セーブ未選択';$('dayValue').textContent=state.day??1;$('locationValue').textContent=state.location||'街道沿い';$('healthValue').textContent=(state.health??10)+' / '+(state.maxHealth??10);$('hungerValue').textContent=(state.hunger??2)+' / '+(state.maxHunger??10);$('thirstValue').textContent=(state.thirst??2)+' / '+(state.maxThirst??10);$('moneyValue').textContent='¥'+(state.money??380);"
+if old_render not in s: raise SystemExit('render pattern not found')
+s=s.replace(old_render,new_render,1)
+start=s.index('function info(it)')
+end=s.index('function down(e)',start)
+info="""function info(it){let c=it.consume,action='';if(c?.type==='food')action='<br><button class=\"consume-action\" onclick=\"window.consumeDrifterItem(\\''+it.id+'\\')\">食べる</button>';if(c?.type==='drink'){let left=c.uses??0;action='<br><span class=\"chip\">残り '+left+' / '+(c.maxUses??left)+'</span><br><button class=\"consume-action\" '+(left<=0?'disabled':'')+' onclick=\"window.consumeDrifterItem(\\''+it.id+'\\')\">'+(left<=0?'空です':'飲む')+'</button>'}$('info').innerHTML='<strong>'+it.icon+' '+it.name+'</strong><br><span class=\"chip\">大きさ '+it.w+'×'+it.h+'</span><span class=\"chip\">本体 '+it.weight.toFixed(1)+'kg</span>'+(it.inner?'<span class=\"chip\">収納 '+it.inner.cols+'×'+it.inner.rows+'</span><span class=\"chip\">中身上限 '+it.inner.maxWeight.toFixed(1)+'kg</span>':'')+action}
+window.consumeDrifterItem=consumeItem;
+"""
+s=s[:start]+info+s[end:]
+style_marker='.chip{display:inline-block;padding:2px 6px;border:1px solid #b9a794;border-radius:999px;background:#f3e8d9;margin:3px 3px 0 0}'
+if style_marker not in s: raise SystemExit('style marker not found')
+s=s.replace(style_marker,style_marker+'.consume-action{margin-top:7px;border:1px solid #806c59;border-radius:8px;background:#f0dfca;padding:7px 14px;font-weight:800}.consume-action:disabled{opacity:.5}',1)
+p.write_text(s,encoding='utf-8')
