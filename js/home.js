@@ -75,6 +75,16 @@ async function startNewGame(){
   toast('NEW GAMEを始めました');
   if(githubToken)await saveCurrent()
 }
+const originalLoadSlot=loadSlot;
+loadSlot=function(id){
+  originalLoadSlot(id);
+  if(activeId===id&&!$('saveLayer').classList.contains('open'))enterGame()
+};
+const originalSetSaveMode=setSaveMode;
+setSaveMode=function(mode){
+  originalSetSaveMode(mode);
+  $('newSave').style.display='none'
+};
 window.showHome=showHome;
 window.enterGame=enterGame;
 installHomeDom();
