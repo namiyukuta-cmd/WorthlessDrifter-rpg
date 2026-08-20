@@ -2,16 +2,16 @@
   "version": 1,
   "id": "Dmt1gs9lqhgxli",
   "name": "旅人",
-  "updatedAt": 1787226959311,
+  "updatedAt": 1787226976629,
   "state": {
     "characterName": "旅人",
     "day": 1,
     "location": "街道沿い",
     "health": 10,
     "maxHealth": 10,
-    "hunger": 2,
+    "hunger": 5,
     "maxHunger": 10,
-    "thirst": 2,
+    "thirst": 5,
     "maxThirst": 10,
     "money": 380,
     "humanMax": 18,
@@ -41,14 +41,14 @@
         "kind": "water",
         "w": 1,
         "h": 2,
-        "weight": 1.0999999999999999,
+        "weight": 0.8,
         "parent": "main",
         "x": 2,
         "y": 0,
         "consume": {
           "type": "drink",
           "amount": 3,
-          "uses": 3,
+          "uses": 2,
           "maxUses": 3,
           "emptyWeight": 0.2,
           "unitWeight": 0.3
@@ -89,21 +89,6 @@
         "parent": "container:bag",
         "x": 1,
         "y": 0
-      },
-      {
-        "id": "bread",
-        "name": "パン",
-        "icon": "🥖",
-        "kind": "food",
-        "w": 2,
-        "h": 1,
-        "weight": 0.35,
-        "parent": "loose",
-        "consume": {
-          "type": "food",
-          "amount": 3,
-          "remove": true
-        }
       },
       {
         "id": "soap",
