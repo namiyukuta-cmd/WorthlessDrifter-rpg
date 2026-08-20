@@ -1,158 +1,50 @@
-let selectedCompanionId=null;
+let selectedCompanionId=null,selectedWorldId=null,selectedStarterIds=new Set();
 function installHomeStyles(){
   if(document.getElementById('homeStyles'))return;
-  let style=document.createElement('style');
-  style.id='homeStyles';
-  style.textContent=`
-  .home-layer{position:fixed;inset:0;z-index:150;background:#e7ded0;display:flex;align-items:center;justify-content:center;padding:18px;color:#332b25}
-  .home-card{width:min(430px,100%);background:#fbf6ed;border:2px solid #6c5b4d;border-radius:18px;padding:28px 18px;box-shadow:0 12px 35px #0002;text-align:center}
-  .home-card h1{font-size:30px;line-height:1.05;margin:0 0 8px;letter-spacing:.04em}
-  .home-sub{font-size:11px;color:#806f60;margin-bottom:28px}
-  .home-actions{display:grid;gap:11px}
-  .home-actions button{width:100%;padding:14px 12px;border:1px solid #806c59;border-radius:10px;background:#f0dfca;font-weight:900;font-size:16px}
-  .home-actions button.primary{background:#dcc2a1;font-size:18px}
-  .newgame-layer{position:fixed;inset:0;z-index:190;display:none;background:#0006;padding:12px;align-items:center;justify-content:center}
-  .newgame-layer.open{display:flex}
-  .newgame-box{width:min(520px,100%);max-height:88dvh;overflow:auto;background:#fff9f0;border:2px solid #6c5b4d;border-radius:14px;padding:14px;box-shadow:0 14px 45px #0007}
-  .newgame-head{display:flex;align-items:center;gap:8px}.newgame-head h2{margin:0}.newgame-head button{margin-left:auto;border:1px solid #a5917c;border-radius:7px;background:#eee0d0;padding:7px 10px}
-  .newgame-step{display:none}.newgame-step.active{display:block}
-  .newgame-stepmark{font-size:10px;color:#8a7868;margin-top:4px}
-  .newgame-field{margin-top:13px;text-align:left}.newgame-field label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}
-  .newgame-field input,.newgame-field textarea{width:100%;border:1px solid #a8947f;border-radius:8px;background:#fffdf9;padding:10px;font:inherit;color:inherit}
-  .newgame-field textarea{min-height:66px;resize:vertical}
-  .newgame-start,.newgame-next{width:100%;margin-top:16px;border:1px solid #806c59;border-radius:9px;background:#dcc2a1;padding:13px;font-weight:900;font-size:16px}
-  .newgame-back{width:100%;margin-top:8px;border:1px solid #a5917c;border-radius:9px;background:#eee0d0;padding:10px;font-weight:800}
-  .companion-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-  .companion-card{border:1px solid #b7a38e;border-radius:11px;background:#fffdf9;padding:11px;text-align:left;min-height:116px}
-  .companion-card.selected{outline:3px solid #9e7658;background:#f3e3cf}
-  .companion-icon{font-size:30px}.companion-name{font-weight:900;font-size:15px;margin-top:3px}.companion-desc{font-size:10px;color:#7c6c5e;margin-top:2px}
-  .companion-stats{font-size:10px;margin-top:8px;line-height:1.45}
-  @media(max-width:390px){.companion-grid{grid-template-columns:1fr}}
-  `;
-  document.head.appendChild(style)
+  let style=document.createElement('style');style.id='homeStyles';style.textContent=`
+  .home-layer{position:fixed;inset:0;z-index:150;background:#e7ded0;display:flex;align-items:center;justify-content:center;padding:18px;color:#332b25}.home-card{width:min(430px,100%);background:#fbf6ed;border:2px solid #6c5b4d;border-radius:18px;padding:28px 18px;box-shadow:0 12px 35px #0002;text-align:center}.home-card h1{font-size:30px;line-height:1.05;margin:0 0 8px;letter-spacing:.04em}.home-sub{font-size:11px;color:#806f60;margin-bottom:28px}.home-actions{display:grid;gap:11px}.home-actions button{width:100%;padding:14px 12px;border:1px solid #806c59;border-radius:10px;background:#f0dfca;font-weight:900;font-size:16px}.home-actions button.primary{background:#dcc2a1;font-size:18px}
+  .newgame-layer{position:fixed;inset:0;z-index:190;display:none;background:#0006;padding:12px;align-items:center;justify-content:center}.newgame-layer.open{display:flex}.newgame-box{width:min(520px,100%);max-height:88dvh;overflow:auto;background:#fff9f0;border:2px solid #6c5b4d;border-radius:14px;padding:14px;box-shadow:0 14px 45px #0007}.newgame-head{display:flex;align-items:center;gap:8px}.newgame-head h2{margin:0}.newgame-head button{margin-left:auto;border:1px solid #a5917c;border-radius:7px;background:#eee0d0;padding:7px 10px}.newgame-step{display:none}.newgame-step.active{display:block}.newgame-stepmark{font-size:10px;color:#8a7868;margin-top:4px}.newgame-field{margin-top:13px;text-align:left}.newgame-field label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.newgame-field input,.newgame-field textarea{width:100%;border:1px solid #a8947f;border-radius:8px;background:#fffdf9;padding:10px;font:inherit;color:inherit}.newgame-field textarea{min-height:66px;resize:vertical}.newgame-start,.newgame-next,.newgame-back{width:100%;margin-top:10px;border:1px solid #806c59;border-radius:9px;padding:11px;font-weight:900}.newgame-start,.newgame-next{background:#dcc2a1;font-size:15px}.newgame-back{background:#eee0d0}
+  .world-grid,.companion-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.world-card,.companion-card{border:1px solid #b7a38e;border-radius:11px;background:#fffdf9;padding:11px;text-align:left;min-height:105px}.world-card.selected,.companion-card.selected{outline:3px solid #9e7658;background:#f3e3cf}.world-name,.companion-name{font-weight:900;font-size:15px}.world-desc,.companion-desc{font-size:10px;color:#7c6c5e;margin-top:4px}.companion-icon{font-size:30px}.companion-stats{font-size:10px;margin-top:8px;line-height:1.45}.starter-list{display:grid;gap:7px;margin-top:12px}.starter-row{display:flex;align-items:center;gap:9px;border:1px solid #c5b29e;border-radius:9px;padding:9px;background:#fffdf9}.starter-row input{width:20px;height:20px}.starter-row span{font-weight:800}
+  @media(max-width:390px){.world-grid,.companion-grid{grid-template-columns:1fr}}
+  `;document.head.appendChild(style)
 }
 function installGameLayout(){
-  if(!document.getElementById('gameLayoutStyles')){
-    let style=document.createElement('style');
-    style.id='gameLayoutStyles';
-    style.textContent=`
-    .app>header{height:56px;padding:8px 8px;gap:5px}
-    .app>header>div:first-child{min-width:0;flex:1 1 auto}
-    .app>header .title{font-size:11px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .app>header .charline{font-size:9px}
-    .app>header .header-actions{display:flex;align-items:center;gap:3px;flex:0 0 auto}
-    .app>header .header-actions button{padding:6px 4px;font-size:9px;white-space:nowrap;min-width:0}
-    .app>header .save-state{font-size:8px;min-width:22px}
-    @media(max-width:390px){.app>header .title{font-size:10px}.app>header .header-actions button{font-size:8px;padding:6px 3px}.app>header .save-state{min-width:18px}}
-    `;
-    document.head.appendChild(style)
-  }
-  let actions=document.querySelector('.header-actions');
-  if(actions&&!$('homeBtn')){
-    let b=document.createElement('button');
-    b.id='homeBtn';b.textContent='HOME';
-    actions.insertBefore(b,$('saveBtn')||actions.firstChild)
-  }
-  let index=$('index');
-  if(index){
-    index.querySelector('.buttons')?.remove();
-    if(!$('petIndexPanel')){
-      let panel=document.createElement('div');
-      panel.id='petIndexPanel';panel.className='panel pet-index-panel';
-      index.appendChild(panel)
-    }
-  }
+  if(!document.getElementById('gameLayoutStyles')){let style=document.createElement('style');style.id='gameLayoutStyles';style.textContent=`.app>header{height:56px;padding:8px 8px;gap:5px}.app>header>div:first-child{min-width:0;flex:1 1 auto}.app>header .title{font-size:11px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.app>header .charline{font-size:9px}.app>header .header-actions{display:flex;align-items:center;gap:3px;flex:0 0 auto}.app>header .header-actions button{padding:6px 4px;font-size:9px;white-space:nowrap;min-width:0}.app>header .save-state{font-size:8px;min-width:22px}@media(max-width:390px){.app>header .title{font-size:10px}.app>header .header-actions button{font-size:8px;padding:6px 3px}.app>header .save-state{min-width:18px}}`;document.head.appendChild(style)}
+  let actions=document.querySelector('.header-actions');if(actions&&!$('homeBtn')){let b=document.createElement('button');b.id='homeBtn';b.textContent='HOME';actions.insertBefore(b,$('saveBtn')||actions.firstChild)}
+  let index=$('index');if(index){index.querySelector('.buttons')?.remove();if(!$('petIndexPanel')){let panel=document.createElement('div');panel.id='petIndexPanel';panel.className='panel pet-index-panel';index.appendChild(panel)}}
+}
+function newGameMarkup(){
+  let worlds=WORLD_CATALOG.map(w=>'<button type="button" class="world-card" data-world="'+w.id+'"><div class="world-name">'+w.name+'</div><div class="world-desc">'+w.description+'</div></button>').join('');
+  let fields=NEW_GAME_DATA.questions.map(q=>'<div class="newgame-field"><label for="ng_'+q.id+'">'+q.label+'</label><textarea id="ng_'+q.id+'" placeholder="'+q.placeholder+'"></textarea></div>').join('');
+  let companions=NEW_GAME_DATA.companions.map(c=>'<button type="button" class="companion-card" data-companion="'+c.id+'"><div class="companion-icon">'+c.icon+'</div><div class="companion-name">'+c.label+'</div><div class="companion-desc">'+c.description+'</div><div class="companion-stats">'+(c.id==='none'?'体力・餌：なし':'体力 '+c.health+'<br>1日：餌 '+c.dailyFood)+'</div></button>').join('');
+  let starters=NEW_GAME_DATA.starterItems.map(x=>'<label class="starter-row"><input type="checkbox" data-starter="'+x.id+'"><span>'+x.label+'</span></label>').join('');
+  return'<div class="newgame-box"><div class="newgame-head"><div><h2>NEW GAME</h2><div id="newGameStepMark" class="newgame-stepmark">1 / 4　世界</div></div><button id="closeNewGame">閉じる</button></div>'+
+  '<div id="newGameStep1" class="newgame-step active"><p class="note">このキャラクターが旅をする世界を選びます。</p><div class="world-grid">'+worlds+'</div><button id="nextCharacter" class="newgame-next">次へ：キャラクター</button></div>'+
+  '<div id="newGameStep2" class="newgame-step"><p class="note">旅立つ人物を作ります。</p><div class="newgame-field"><label for="ng_name">名前</label><input id="ng_name" maxlength="40" value="旅人"></div>'+fields+'<button id="nextCompanion" class="newgame-next">次へ：同行動物</button><button data-newgame-back="1" class="newgame-back">戻る</button></div>'+
+  '<div id="newGameStep3" class="newgame-step"><p class="note">一緒に旅をする動物を選びます。同行なしでも始められます。</p><div class="companion-grid">'+companions+'</div><div id="companionNameField" class="newgame-field" style="display:none"><label for="ng_companion_name">同行動物の名前</label><input id="ng_companion_name" maxlength="40" placeholder="空欄でも可"></div><button id="nextStarter" class="newgame-next">次へ：初期所持品</button><button data-newgame-back="2" class="newgame-back">戻る</button></div>'+
+  '<div id="newGameStep4" class="newgame-step"><p class="note">旅立ちに持っていく物を選びます。同行動物がいる場合は餌袋が自動で加わります。</p><div class="starter-list">'+starters+'</div><button id="startNewGame" class="newgame-start">このキャラクターで旅を始める</button><button data-newgame-back="3" class="newgame-back">戻る</button></div></div>'
 }
 function installHomeDom(){
-  installHomeStyles();
-  installGameLayout();
-  if(!document.getElementById('homeLayer')){
-    let home=document.createElement('div');
-    home.id='homeLayer';home.className='home-layer';
-    home.innerHTML='<div class="home-card"><h1>Worthless<br>Drifter</h1><div class="home-sub">WANDERING RPG</div><div class="home-actions"><button id="homeLoad">LOAD</button><button id="homeNew" class="primary">NEW GAME</button><button id="homeData">データ</button></div></div>';
-    document.body.appendChild(home)
-  }
-  if(!document.getElementById('newGameLayer')){
-    let layer=document.createElement('div');layer.id='newGameLayer';layer.className='newgame-layer';
-    let fields=NEW_GAME_DATA.questions.map(q=>'<div class="newgame-field"><label for="ng_'+q.id+'">'+q.label+'</label><textarea id="ng_'+q.id+'" placeholder="'+q.placeholder+'"></textarea></div>').join('');
-    let companions=NEW_GAME_DATA.companions.map(c=>'<button type="button" class="companion-card" data-companion="'+c.id+'"><div class="companion-icon">'+c.icon+'</div><div class="companion-name">'+c.label+'</div><div class="companion-desc">'+c.description+'</div><div class="companion-stats">'+(c.id==='none'?'体力・餌：なし':'体力 '+c.health+'<br>1日：餌 '+c.dailyFood)+'</div></button>').join('');
-    layer.innerHTML='<div class="newgame-box"><div class="newgame-head"><div><h2>NEW GAME</h2><div id="newGameStepMark" class="newgame-stepmark">1 / 2　旅立ち</div></div><button id="closeNewGame">閉じる</button></div><div id="newGameStep1" class="newgame-step active"><p class="note">旅立つキャラクターを作ります。設定はセーブデータへ残します。</p><div class="newgame-field"><label for="ng_name">名前</label><input id="ng_name" maxlength="40" value="旅人"></div>'+fields+'<button id="nextCompanion" class="newgame-next">次へ：同行動物</button></div><div id="newGameStep2" class="newgame-step"><p class="note">一緒に旅をする動物を選びます。同行なしでも始められます。</p><div class="companion-grid">'+companions+'</div><div id="companionNameField" class="newgame-field" style="display:none"><label for="ng_companion_name">同行動物の名前</label><input id="ng_companion_name" maxlength="40" placeholder="空欄でも可"></div><button id="startNewGame" class="newgame-start">このキャラクターで始める</button><button id="backNewGame" class="newgame-back">戻る</button></div></div>';
-    document.body.appendChild(layer)
-  }
-  $('homeLoad').onclick=()=>openLoad();
-  $('homeData').onclick=()=>openSave(true,'data');
-  $('homeNew').onclick=openNewGame;
-  if($('homeBtn'))$('homeBtn').onclick=showHome;
-  $('closeNewGame').onclick=closeNewGame;
-  $('newGameLayer').onclick=e=>{if(e.target===$('newGameLayer'))closeNewGame()};
-  $('nextCompanion').onclick=()=>showNewGameStep(2);
-  $('backNewGame').onclick=()=>showNewGameStep(1);
-  $('startNewGame').onclick=startNewGame;
-  document.querySelectorAll('[data-companion]').forEach(x=>x.onclick=()=>selectCompanion(x.dataset.companion))
+  installHomeStyles();installGameLayout();
+  if(!$('homeLayer')){let home=document.createElement('div');home.id='homeLayer';home.className='home-layer';home.innerHTML='<div class="home-card"><h1>Worthless<br>Drifter</h1><div class="home-sub">WANDERING RPG</div><div class="home-actions"><button id="homeLoad">LOAD</button><button id="homeNew" class="primary">NEW GAME</button><button id="homeData">データ</button></div></div>';document.body.appendChild(home)}
+  if(!$('newGameLayer')){let layer=document.createElement('div');layer.id='newGameLayer';layer.className='newgame-layer';layer.innerHTML=newGameMarkup();document.body.appendChild(layer)}
+  $('homeLoad').onclick=()=>openLoad();$('homeData').onclick=()=>openSave(true,'data');$('homeNew').onclick=openNewGame;if($('homeBtn'))$('homeBtn').onclick=showHome;$('closeNewGame').onclick=closeNewGame;$('newGameLayer').onclick=e=>{if(e.target===$('newGameLayer'))closeNewGame()};
+  $('nextCharacter').onclick=()=>{if(!selectedWorldId)return toast('世界を選んでください');showNewGameStep(2)};$('nextCompanion').onclick=()=>showNewGameStep(3);$('nextStarter').onclick=()=>{if(!selectedCompanionId)return toast('同行動物を選んでください');showNewGameStep(4)};$('startNewGame').onclick=startNewGame;
+  document.querySelectorAll('[data-newgame-back]').forEach(x=>x.onclick=()=>showNewGameStep(Number(x.dataset.newgameBack)));document.querySelectorAll('[data-world]').forEach(x=>x.onclick=()=>selectWorld(x.dataset.world));document.querySelectorAll('[data-companion]').forEach(x=>x.onclick=()=>selectCompanion(x.dataset.companion));document.querySelectorAll('[data-starter]').forEach(x=>x.onchange=()=>{x.checked?selectedStarterIds.add(x.dataset.starter):selectedStarterIds.delete(x.dataset.starter)})
 }
-function showNewGameStep(step){
-  $('newGameStep1').classList.toggle('active',step===1);
-  $('newGameStep2').classList.toggle('active',step===2);
-  $('newGameStepMark').textContent=step===1?'1 / 2　旅立ち':'2 / 2　同行動物';
-  if(step===1)setTimeout(()=>$('ng_name').focus(),0)
-}
-function selectCompanion(id){
-  selectedCompanionId=id;
-  document.querySelectorAll('[data-companion]').forEach(x=>x.classList.toggle('selected',x.dataset.companion===id));
-  $('companionNameField').style.display=id==='none'?'none':'';
-  if(id==='none')$('ng_companion_name').value=''
-}
-function showHome(){
-  installHomeDom();
-  document.querySelector('.app').style.display='none';
-  $('homeLayer').style.display='flex';
-  closeStorage();
-  closeSave();
-  closeHealth?.();
-  window.closeCompanionRecovery?.()
-}
-function enterGame(){
-  installHomeDom();
-  $('homeLayer').style.display='none';
-  document.querySelector('.app').style.display='';
-  go('index');
-  render();
-  updateSaveState()
-}
+function showNewGameStep(step){for(let i=1;i<=4;i++)$('newGameStep'+i).classList.toggle('active',i===step);let labels=['世界','キャラクター','同行動物','初期所持品'];$('newGameStepMark').textContent=step+' / 4　'+labels[step-1];if(step===2)setTimeout(()=>$('ng_name').focus(),0)}
+function selectWorld(id){selectedWorldId=id;document.querySelectorAll('[data-world]').forEach(x=>x.classList.toggle('selected',x.dataset.world===id))}
+function selectCompanion(id){selectedCompanionId=id;document.querySelectorAll('[data-companion]').forEach(x=>x.classList.toggle('selected',x.dataset.companion===id));$('companionNameField').style.display=id==='none'?'none':'';if(id==='none')$('ng_companion_name').value=''}
+function showHome(){installHomeDom();document.querySelector('.app').style.display='none';$('homeLayer').style.display='flex';closeStorage();closeSave();closeHealth?.();window.closeCompanionRecovery?.()}
+function enterGame(){installHomeDom();$('homeLayer').style.display='none';document.querySelector('.app').style.display='';go('index');render();updateSaveState()}
 function openNewGame(){
-  installHomeDom();
-  selectedCompanionId=null;
-  document.querySelectorAll('[data-companion]').forEach(x=>x.classList.remove('selected'));
-  $('companionNameField').style.display='none';
-  $('ng_companion_name').value='';
-  showNewGameStep(1);
-  $('newGameLayer').classList.add('open')
+  installHomeDom();selectedCompanionId=null;selectedWorldId=null;selectedStarterIds=new Set(defaultStarterIds());document.querySelectorAll('[data-world],[data-companion]').forEach(x=>x.classList.remove('selected'));$('companionNameField').style.display='none';$('ng_companion_name').value='';document.querySelectorAll('[data-starter]').forEach(x=>x.checked=selectedStarterIds.has(x.dataset.starter));showNewGameStep(1);$('newGameLayer').classList.add('open')
 }
 function closeNewGame(){$('newGameLayer')?.classList.remove('open')}
 async function startNewGame(){
-  if(!selectedCompanionId)return toast('同行動物を選んでください');
-  if(activeId&&dirty&&!confirm('保存していない変更があります。保存せずにNEW GAMEを始めますか？'))return;
-  let form={name:$('ng_name').value,companionId:selectedCompanionId,companionName:$('ng_companion_name').value};
-  for(let q of NEW_GAME_DATA.questions)form[q.id]=$('ng_'+q.id).value;
-  activeId=uid();
-  state=buildNewGameState(form);
-  dirty=true;
-  closeStorage();closeSave();closeNewGame();
-  enterGame();
-  toast('NEW GAMEを始めました');
-  if(githubToken)await saveCurrent()
+  if(!selectedWorldId)return toast('世界を選んでください');if(!selectedCompanionId)return toast('同行動物を選んでください');if(activeId&&dirty&&!confirm('保存していない変更があります。保存せずにNEW GAMEを始めますか？'))return;
+  let form={name:$('ng_name').value,worldId:selectedWorldId,companionId:selectedCompanionId,companionName:$('ng_companion_name').value,starterIds:[...selectedStarterIds]};for(let q of NEW_GAME_DATA.questions)form[q.id]=$('ng_'+q.id).value;
+  activeId=uid();state=buildNewGameState(form);dirty=true;closeStorage();closeSave();closeNewGame();enterGame();toast('旅を始めました');if(githubToken)await saveCurrent()
 }
-const originalLoadSlot=loadSlot;
-loadSlot=function(id){
-  originalLoadSlot(id);
-  if(activeId===id&&!$('saveLayer').classList.contains('open'))enterGame()
-};
-const originalSetSaveMode=setSaveMode;
-setSaveMode=function(mode){
-  originalSetSaveMode(mode);
-  $('newSave').style.display='none'
-};
-window.showHome=showHome;
-window.enterGame=enterGame;
-installHomeDom();
-showHome();
+const originalLoadSlot=loadSlot;loadSlot=function(id){originalLoadSlot(id);if(activeId===id&&!$('saveLayer').classList.contains('open'))enterGame()};const originalSetSaveMode=setSaveMode;setSaveMode=function(mode){originalSetSaveMode(mode);$('newSave').style.display='none'};
+window.showHome=showHome;window.enterGame=enterGame;installHomeDom();showHome();
