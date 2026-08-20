@@ -1,0 +1,78 @@
+name: oneoff-split-js
+on:
+  push:
+    branches:
+      - refactor-split-js
+permissions:
+  contents: write
+jobs:
+  split:
+    if: github.event.head_commit.message != 'Split game code into modules'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Split JavaScript
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          start_token = '<script>\n(()=>{\n'
+          end_token = '\n})();\n</script>'
+          if start_token not in s or end_token not in s:
+              raise SystemExit('inline script wrapper not found')
+          before, rest = s.split(start_token, 1)
+          body, after = rest.split(end_token, 1)
+          lines = body.splitlines()
+
+          def find(prefix, start=0):
+              for i in range(start, len(lines)):
+                  if lines[i].startswith(prefix):
+                      return i
+              raise SystemExit('marker not found: ' + prefix)
+
+          i_gh = find('const GH_OWNER=')
+          i_items = find('const baseItems=[')
+          i_clone = find('const clone=')
+          i_uid = find('function uid()')
+          i_needs = find('function ensureConsumables()')
+          i_total = find('function total(')
+          i_window_consume = find('window.consumeDrifterItem=')
+          i_toast = find('function toast(')
+
+          items = '\n'.join(lines[i_items:i_clone]).strip() + '\n'
+          state = '\n'.join(lines[i_clone:i_uid]).strip() + '\n'
+          save = (lines[i_gh] + '\n' + '\n'.join(lines[i_uid:i_needs])).strip() + '\n'
+          needs = ('\n'.join(lines[i_needs:i_total]) + '\n' + lines[i_window_consume]).strip() + '\n'
+
+          inventory_lines = lines[i_total:i_toast]
+          inventory_lines = [ln for ln in inventory_lines if not ln.startswith('window.consumeDrifterItem=')]
+          inventory = '\n'.join(inventory_lines).strip() + '\n'
+          app = '\n'.join(lines[i_toast:]).strip() + '\n'
+
+          out = Path('js')
+          out.mkdir(exist_ok=True)
+          (out/'items.js').write_text(items, encoding='utf-8')
+          (out/'state.js').write_text(state, encoding='utf-8')
+          (out/'save.js').write_text(save, encoding='utf-8')
+          (out/'needs.js').write_text(needs, encoding='utf-8')
+          (out/'inventory.js').write_text(inventory, encoding='utf-8')
+          (out/'app.js').write_text(app, encoding='utf-8')
+
+          tags = '''<script src="js/items.js"></script>\n<script src="js/save.js"></script>\n<script src="js/state.js"></script>\n<script src="js/needs.js"></script>\n<script src="js/inventory.js"></script>\n<script src="js/app.js"></script>'''
+          p.write_text(before + tags + after, encoding='utf-8')
+          Path('.github/workflows/oneoff-split-js.yml').unlink()
+      - name: Syntax check
+        run: |
+          for f in js/*.js; do node --check "$f"; done
+          grep -q 'js/items.js' index.html
+          grep -q 'js/save.js' index.html
+          grep -q 'js/inventory.js' index.html
+      - name: Commit split
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Split game code into modules"
+          git push
