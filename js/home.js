@@ -43,9 +43,6 @@ function installGameLayout(){
     .app>header .header-actions{display:flex;align-items:center;gap:3px;flex:0 0 auto}
     .app>header .header-actions button{padding:6px 4px;font-size:9px;white-space:nowrap;min-width:0}
     .app>header .save-state{font-size:8px;min-width:22px}
-    .pet-index-panel{display:none}
-    .pet-index-head{display:flex;align-items:center;gap:7px;margin-bottom:10px}
-    .pet-index-head h2{margin:0}.pet-index-icon{font-size:22px}
     @media(max-width:390px){.app>header .title{font-size:10px}.app>header .header-actions button{font-size:8px;padding:6px 3px}.app>header .save-state{min-width:18px}}
     `;
     document.head.appendChild(style)
@@ -62,7 +59,6 @@ function installGameLayout(){
     if(!$('petIndexPanel')){
       let panel=document.createElement('div');
       panel.id='petIndexPanel';panel.className='panel pet-index-panel';
-      panel.innerHTML='<div class="pet-index-head"><span id="petIndexIcon" class="pet-index-icon">🐾</span><h2 id="petIndexName">同行動物</h2></div><div class="stats"><div class="stat"><small>体力</small><strong id="petIndexHealth">—</strong></div><div class="stat"><small>携行重量</small><strong id="petIndexWeight">—</strong></div><div class="stat"><small>1日の食料</small><strong id="petIndexFood">—</strong></div><div class="stat"><small>1日の水</small><strong id="petIndexWater">—</strong></div></div>';
       index.appendChild(panel)
     }
   }
@@ -79,7 +75,7 @@ function installHomeDom(){
   if(!document.getElementById('newGameLayer')){
     let layer=document.createElement('div');layer.id='newGameLayer';layer.className='newgame-layer';
     let fields=NEW_GAME_DATA.questions.map(q=>'<div class="newgame-field"><label for="ng_'+q.id+'">'+q.label+'</label><textarea id="ng_'+q.id+'" placeholder="'+q.placeholder+'"></textarea></div>').join('');
-    let companions=NEW_GAME_DATA.companions.map(c=>'<button type="button" class="companion-card" data-companion="'+c.id+'"><div class="companion-icon">'+c.icon+'</div><div class="companion-name">'+c.label+'</div><div class="companion-desc">'+c.description+'</div><div class="companion-stats">'+(c.id==='none'?'体力・食料・水：なし':'体力 '+c.health+'<br>1日：食料 '+c.dailyFood+' ／ 水 '+c.dailyWater)+'</div></button>').join('');
+    let companions=NEW_GAME_DATA.companions.map(c=>'<button type="button" class="companion-card" data-companion="'+c.id+'"><div class="companion-icon">'+c.icon+'</div><div class="companion-name">'+c.label+'</div><div class="companion-desc">'+c.description+'</div><div class="companion-stats">'+(c.id==='none'?'体力・餌：なし':'体力 '+c.health+'<br>1日：餌 '+c.dailyFood)+'</div></button>').join('');
     layer.innerHTML='<div class="newgame-box"><div class="newgame-head"><div><h2>NEW GAME</h2><div id="newGameStepMark" class="newgame-stepmark">1 / 2　旅立ち</div></div><button id="closeNewGame">閉じる</button></div><div id="newGameStep1" class="newgame-step active"><p class="note">旅立つキャラクターを作ります。設定はセーブデータへ残します。</p><div class="newgame-field"><label for="ng_name">名前</label><input id="ng_name" maxlength="40" value="旅人"></div>'+fields+'<button id="nextCompanion" class="newgame-next">次へ：同行動物</button></div><div id="newGameStep2" class="newgame-step"><p class="note">一緒に旅をする動物を選びます。同行なしでも始められます。</p><div class="companion-grid">'+companions+'</div><div id="companionNameField" class="newgame-field" style="display:none"><label for="ng_companion_name">同行動物の名前</label><input id="ng_companion_name" maxlength="40" placeholder="空欄でも可"></div><button id="startNewGame" class="newgame-start">このキャラクターで始める</button><button id="backNewGame" class="newgame-back">戻る</button></div></div>';
     document.body.appendChild(layer)
   }
@@ -112,7 +108,8 @@ function showHome(){
   $('homeLayer').style.display='flex';
   closeStorage();
   closeSave();
-  closeHealth?.()
+  closeHealth?.();
+  window.closeCompanionRecovery?.()
 }
 function enterGame(){
   installHomeDom();
@@ -155,33 +152,6 @@ setSaveMode=function(mode){
   originalSetSaveMode(mode);
   $('newSave').style.display='none'
 };
-function currentCompanion(){
-  if(state.companion===undefined)return{type:'dog',label:'犬',icon:'🐕',name:'ムギ',health:15,maxHealth:15,dailyFood:1,dailyWater:1};
-  return state.companion
-}
-function applyCompanionUi(){
-  installGameLayout();
-  let comp=currentCompanion();
-  let petNav=document.querySelector('nav button[data-screen="pet"]');
-  if(petNav)petNav.style.display=comp?'':'none';
-  let indexPanel=$('petIndexPanel');
-  if(indexPanel)indexPanel.style.display=comp?'block':'none';
-  if(!comp)return;
-  let face=document.querySelector('#pet .pet-face');
-  let name=document.querySelector('#pet .panel:first-child strong');
-  let note=document.querySelector('#pet .panel:first-child .note');
-  if(face)face.textContent=comp.icon||'🐾';
-  if(name)name.textContent=comp.name||comp.label||'同行動物';
-  if(note)note.textContent='体力 '+(comp.health??comp.maxHealth??0)+' / '+(comp.maxHealth??comp.health??0)+' ・ 1日 食料 '+(comp.dailyFood??0)+' ／ 水 '+(comp.dailyWater??0);
-  if($('petIndexIcon'))$('petIndexIcon').textContent=comp.icon||'🐾';
-  if($('petIndexName'))$('petIndexName').textContent=comp.name||comp.label||'同行動物';
-  if($('petIndexHealth'))$('petIndexHealth').textContent=(comp.health??comp.maxHealth??0)+' / '+(comp.maxHealth??comp.health??0);
-  if($('petIndexWeight'))$('petIndexWeight').textContent=topWeight('pet').toFixed(1)+' / '+Number(state.petMax??0).toFixed(1)+' kg';
-  if($('petIndexFood'))$('petIndexFood').textContent=String(comp.dailyFood??0);
-  if($('petIndexWater'))$('petIndexWater').textContent=String(comp.dailyWater??0)
-}
-const originalRenderForCompanion=render;
-render=function(){originalRenderForCompanion();applyCompanionUi()};
 window.showHome=showHome;
 window.enterGame=enterGame;
 installHomeDom();
