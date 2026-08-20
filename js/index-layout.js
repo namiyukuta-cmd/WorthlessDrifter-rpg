@@ -62,8 +62,17 @@ function makeIndexShell(){
 function updateIndexPetMini(){
   let mini=document.getElementById('indexPetMini');if(!mini)return;
   let comp=null;if(typeof currentCompanion==='function'){try{comp=currentCompanion()}catch(e){}}else comp=state?.companion||null;
-  if(!comp){mini.style.display='none';mini.innerHTML='';mini.onclick=null;return}
-  let cur=comp.health??comp.maxHealth??0,max=comp.maxHealth??cur;mini.style.display='block';mini.innerHTML='<div class="pet-mini-name">'+(comp.icon||'🐾')+' '+(comp.name||comp.label||'ペット')+'</div><div class="pet-mini-hp">'+cur+'/'+max+'</div>';mini.onclick=()=>{if(typeof openCompanionRecovery==='function')openCompanionRecovery();else go('pet')}
+  if(!comp){
+    if(mini.style.display!=='none')mini.style.display='none';
+    if(mini.innerHTML!=='')mini.innerHTML='';
+    mini.onclick=null;
+    return
+  }
+  let cur=comp.health??comp.maxHealth??0,max=comp.maxHealth??cur;
+  let html='<div class="pet-mini-name">'+(comp.icon||'🐾')+' '+(comp.name||comp.label||'ペット')+'</div><div class="pet-mini-hp">'+cur+'/'+max+'</div>';
+  if(mini.style.display!=='block')mini.style.display='block';
+  if(mini.innerHTML!==html)mini.innerHTML=html;
+  mini.onclick=()=>{if(typeof openCompanionRecovery==='function')openCompanionRecovery();else go('pet')}
 }
 function arrangeTravelIntoIndex(){
   if(indexLayoutBusy)return;let panel=document.getElementById('travelPanel');if(!panel||!panel.children.length)return;
