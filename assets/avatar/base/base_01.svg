@@ -1,0 +1,269 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 256 256"
+  width="256"
+  height="256"
+>
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7d5bd"/>
+      <stop offset="100%" stop-color="#eab99b"/>
+    </linearGradient>
+
+    <linearGradient id="inner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#91a3bc"/>
+      <stop offset="100%" stop-color="#7187a6"/>
+    </linearGradient>
+  </defs>
+
+  <!--
+    共通素体 base_01
+    透明背景
+    正面
+    256×256
+    顔パーツなし
+    髪なし
+    服パーツなし
+  -->
+
+  <!-- 耳 -->
+  <ellipse
+    cx="72"
+    cy="75"
+    rx="11"
+    ry="15"
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+  />
+
+  <ellipse
+    cx="184"
+    cy="75"
+    rx="11"
+    ry="15"
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+  />
+
+  <!-- 首 -->
+  <rect
+    x="116"
+    y="106"
+    width="24"
+    height="25"
+    rx="11"
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+  />
+
+  <!-- 左腕 -->
+  <path
+    d="
+      M100 127
+      C91 132 85 143 80 155
+      C74 170 69 184 62 196
+    "
+    fill="none"
+    stroke="#765548"
+    stroke-width="19"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="
+      M100 127
+      C91 132 85 143 80 155
+      C74 170 69 184 62 196
+    "
+    fill="none"
+    stroke="url(#skin)"
+    stroke-width="14"
+    stroke-linecap="round"
+  />
+
+  <!-- 右腕 -->
+  <path
+    d="
+      M156 127
+      C165 132 171 143 176 155
+      C182 170 187 184 194 196
+    "
+    fill="none"
+    stroke="#765548"
+    stroke-width="19"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="
+      M156 127
+      C165 132 171 143 176 155
+      C182 170 187 184 194 196
+    "
+    fill="none"
+    stroke="url(#skin)"
+    stroke-width="14"
+    stroke-linecap="round"
+  />
+
+  <!-- 胴体 -->
+  <path
+    d="
+      M104 119
+      C111 114 119 112 128 112
+      C137 112 145 114 152 119
+      C160 126 164 139 164 154
+      L161 176
+      C153 184 142 188 128 188
+      C114 188 103 184 95 176
+      L92 154
+      C92 139 96 126 104 119
+      Z
+    "
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.6"
+    stroke-linejoin="round"
+  />
+
+  <!-- インナー -->
+  <path
+    d="
+      M105 119
+      C109 116 113 115 117 114
+      L119 128
+      C120 134 123 137 128 137
+      C133 137 136 134 137 128
+      L139 114
+      C143 115 147 116 151 119
+      C157 125 160 137 160 151
+      L158 172
+      C150 179 140 182 128 182
+      C116 182 106 179 98 172
+      L96 151
+      C96 137 99 125 105 119
+      Z
+    "
+    fill="url(#inner)"
+    stroke="#765548"
+    stroke-width="2.4"
+    stroke-linejoin="round"
+  />
+
+  <!-- 左脚 -->
+  <path
+    d="
+      M113 179
+      C110 191 108 205 108 226
+    "
+    fill="none"
+    stroke="#765548"
+    stroke-width="22"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="
+      M113 179
+      C110 191 108 205 108 226
+    "
+    fill="none"
+    stroke="url(#skin)"
+    stroke-width="17"
+    stroke-linecap="round"
+  />
+
+  <!-- 右脚 -->
+  <path
+    d="
+      M143 179
+      C146 191 148 205 148 226
+    "
+    fill="none"
+    stroke="#765548"
+    stroke-width="22"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="
+      M143 179
+      C146 191 148 205 148 226
+    "
+    fill="none"
+    stroke="url(#skin)"
+    stroke-width="17"
+    stroke-linecap="round"
+  />
+
+  <!-- 左手 -->
+  <circle
+    cx="60"
+    cy="199"
+    r="9"
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+  />
+
+  <!-- 右手 -->
+  <circle
+    cx="196"
+    cy="199"
+    r="9"
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+  />
+
+  <!-- 左足 -->
+  <path
+    d="
+      M98 229
+      C102 225 109 224 117 228
+      C120 230 121 234 119 238
+      C113 242 102 242 97 238
+      C95 235 96 232 98 229
+      Z
+    "
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+    stroke-linejoin="round"
+  />
+
+  <!-- 右足 -->
+  <path
+    d="
+      M158 229
+      C154 225 147 224 139 228
+      C136 230 135 234 137 238
+      C143 242 154 242 159 238
+      C161 235 160 232 158 229
+      Z
+    "
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.4"
+    stroke-linejoin="round"
+  />
+
+  <!-- 頭 -->
+  <path
+    d="
+      M128 18
+      C92 18 73 40 73 74
+      C73 108 93 126 128 126
+      C163 126 183 108 183 74
+      C183 40 164 18 128 18
+      Z
+    "
+    fill="url(#skin)"
+    stroke="#765548"
+    stroke-width="2.8"
+    stroke-linejoin="round"
+  />
+</svg>
