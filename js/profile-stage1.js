@@ -44,7 +44,7 @@ function installProfileStage1(){
       .profile-stage1-avatar{position:relative;width:min(256px,78vw);aspect-ratio:1;margin:8px auto 0;border:1px solid #cfbeaa;border-radius:12px;background:linear-gradient(#f6eddf,#eee1d0);overflow:hidden}
       .profile-stage1-avatar img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
       .profile-avatar-base{z-index:0}
-      .profile-stage1-avatar .profile-avatar-eyes{z-index:10;inset:auto;left:calc(15.36% - 3px);top:6.05%;width:calc(70.833% + 5px);height:calc(70.833% + 5px)}
+      .profile-stage1-avatar .profile-avatar-eyes{z-index:10;inset:auto;left:calc(15.36% - 6px);top:6.05%;width:calc(70.833% + 8px);height:calc(70.833% + 8px)}
       .profile-stage1-eyes{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px}
       .profile-stage1-eyes span{font-size:11px;color:#766b61;margin-right:2px}
       .profile-stage1-eyes button{min-width:54px;padding:6px 10px;border:1px solid #ad9985;border-radius:8px;background:#fffaf3;color:#4d433b;font:inherit}
