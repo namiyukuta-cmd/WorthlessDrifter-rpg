@@ -28,4 +28,16 @@ PNGはテキストではなくバイナリとして扱う。
 - 表示側: `js/profile-stage1.js`
 - 参照: `assets/avatar/base/base_01.png`
 
+## 目パーツ
+
+- 置き場: `assets/avatar/eyes/`
+- 命名: `eyes_01.png`, `eyes_02.png`, `eyes_03.png` ...
+- すべて素体と同じキャンバスサイズ、同じキャラクター位置で作る。
+- 目以外は透明。
+- ゲーム側で目ごとの座標や拡大率を変えない。
+- 素体と目は同じ表示枠に `inset:0; width:100%; height:100%` で重ねる。
+- 表示順: 素体 `z-index:0`、目 `z-index:10`。
+- 選択値: `state.avatar.eyes` に `01`, `02` などを保存。未設定は `none`。
+- `js/profile-stage1.js` には目専用の独立レイヤー `profileEyesImage` がある。
+
 今後、新しい目・髪・服などのPNGを追加するときも、画像本体は同じ考え方でバイナリのままGitHubへ置く。
