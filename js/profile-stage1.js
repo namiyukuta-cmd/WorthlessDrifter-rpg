@@ -1,4 +1,4 @@
-const PROFILE_STAGE1_IMAGE='assets/avatar/base/base_01.svg';
+const PROFILE_STAGE1_IMAGE='assets/avatar/base/base_01.png';
 function renderProfileStage1(){
   const section=$('profile');
   if(!section)return;
