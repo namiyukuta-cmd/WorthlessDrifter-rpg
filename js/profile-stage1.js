@@ -66,7 +66,7 @@ function installProfileStage1(){
     const section=document.createElement('section');
     section.id='profile';
     section.className='screen';
-    section.innerHTML='<div class="profile-stage1-shell"><div class="profile-stage1-card"><h2 id="profileName">旅人</h2><div class="profile-stage1-sub">アバター</div><div class="profile-stage1-avatar"><img id="profileBaseImage" class="profile-avatar-base" src="'+PROFILE_STAGE1_IMAGE+'?v='+GAME_ASSET_VERSION+'" alt="共通素体"><img id="profileEyesImage" class="profile-avatar-eyes" alt="" hidden></div><div class="profile-stage1-eyes"><span>目</span><button type="button" data-profile-eye="none">なし</button><button type="button" data-profile-eye="01">01</button></div></div></div>';
+    section.innerHTML='<div class="profile-stage1-shell"><div class="profile-stage1-card"><h2 id="profileName">旅人</h2><div class="profile-stage1-sub">アバター</div><div class="profile-stage1-avatar"><img id="profileBaseImage" class="profile-avatar-base" src="'+PROFILE_STAGE1_IMAGE+'?v='+GAME_ASSET_VERSION+'" alt="共通素体"><img id="profileEyesImage" class="profile-avatar-eyes" alt="" hidden></div><div class="profile-stage1-eyes"><span>目</span><button type="button" data-profile-eye="none">なし</button><button type="button" data-profile-eye="01">01</button><button type="button" data-profile-eye="02">02</button><button type="button" data-profile-eye="03">03</button><button type="button" data-profile-eye="04">04</button></div></div></div>';
     section.querySelectorAll('[data-profile-eye]').forEach(button=>button.addEventListener('click',()=>setProfileStage1Eyes(button.dataset.profileEye)));
     app.appendChild(section);
   }
