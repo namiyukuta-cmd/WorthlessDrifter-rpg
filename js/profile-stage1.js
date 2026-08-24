@@ -2,6 +2,10 @@ const PROFILE_STAGE1_IMAGE='assets/avatar/base/base_01.png';
 const PROFILE_STAGE1_EYES_DIR='assets/avatar/eyes';
 const PROFILE_STAGE1_CLOTHES_DIR='assets/avatar/clothes';
 
+/* パーツの枚数。増やしたらここだけ変更 */
+const PROFILE_STAGE1_EYES_COUNT=4;
+const PROFILE_STAGE1_CLOTHES_COUNT=2;
+
 function profileStage1EyesPath(){
   const id=state.avatar&&state.avatar.eyes?String(state.avatar.eyes):'none';
   return id==='none'?'':PROFILE_STAGE1_EYES_DIR+'/eyes_'+id+'.png';
@@ -10,6 +14,30 @@ function profileStage1EyesPath(){
 function profileStage1ClothesPath(){
   const id=state.avatar&&state.avatar.clothes?String(state.avatar.clothes):'none';
   return id==='none'?'':PROFILE_STAGE1_CLOTHES_DIR+'/clothes_'+id+'.png';
+}
+
+/* 目ボタンを自動生成 */
+function profileStage1EyesButtonsHtml(){
+  let html='<button type="button" data-profile-eye="none">なし</button>';
+
+  for(let i=1;i<=PROFILE_STAGE1_EYES_COUNT;i++){
+    const id=String(i).padStart(2,'0');
+    html+='<button type="button" data-profile-eye="'+id+'">'+id+'</button>';
+  }
+
+  return html;
+}
+
+/* 服ボタンを自動生成 */
+function profileStage1ClothesButtonsHtml(){
+  let html='<button type="button" data-profile-clothes="none">なし</button>';
+
+  for(let i=1;i<=PROFILE_STAGE1_CLOTHES_COUNT;i++){
+    const id=String(i).padStart(2,'0');
+    html+='<button type="button" data-profile-clothes="'+id+'">'+id+'</button>';
+  }
+
+  return html;
 }
 
 function setProfileStage1Eyes(id){
@@ -124,7 +152,8 @@ function installProfileStage1(){
         align-items:center;
         justify-content:center;
         gap:7px;
-        margin-top:9px
+        margin-top:9px;
+        flex-wrap:wrap
       }
 
       .profile-stage1-eyes span,
@@ -185,17 +214,12 @@ function installProfileStage1(){
 
           '<div class="profile-stage1-eyes">'+
             '<span>目</span>'+
-            '<button type="button" data-profile-eye="none">なし</button>'+
-            '<button type="button" data-profile-eye="01">01</button>'+
-            '<button type="button" data-profile-eye="02">02</button>'+
-            '<button type="button" data-profile-eye="03">03</button>'+
-            '<button type="button" data-profile-eye="04">04</button>'+
+            profileStage1EyesButtonsHtml()+
           '</div>'+
 
           '<div class="profile-stage1-clothes">'+
             '<span>服</span>'+
-            '<button type="button" data-profile-clothes="none">なし</button>'+
-            '<button type="button" data-profile-clothes="01">01</button>'+
+            profileStage1ClothesButtonsHtml()+
           '</div>'+
 
         '</div>'+
@@ -216,6 +240,7 @@ function installProfileStage1(){
 }
 
 const profileStage1BaseRender=render;
+
 render=function(){
   profileStage1BaseRender();
   renderProfileStage1();
