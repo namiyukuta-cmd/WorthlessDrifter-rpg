@@ -1,18 +1,25 @@
 const PROFILE_STAGE1_IMAGE='assets/avatar/base/base_01.png';
-const PROFILE_STAGE1_EYES_DIR='assets/avatar/eyes';
-const PROFILE_STAGE1_CLOTHES_DIR='assets/avatar/clothes';
+const PROFILE_STAGE1_EYES_DIR='assets/avatar/fitted';
+const PROFILE_STAGE1_CLOTHES_DIR='assets/avatar/fitted';
 
-/* パーツの枚数。増やしたらここだけ変更 */
+/* 素体と位置を合わせた assets/avatar/fitted 内のパーツ数 */
 const PROFILE_STAGE1_EYES_COUNT=4;
 const PROFILE_STAGE1_CLOTHES_COUNT=2;
 
+function profileStage1PartId(value,count){
+  const text=String(value??'none');
+  if(!/^\d{1,2}$/.test(text))return 'none';
+  const number=Number(text);
+  return number>=1&&number<=count?String(number).padStart(2,'0'):'none';
+}
+
 function profileStage1EyesPath(){
-  const id=state.avatar&&state.avatar.eyes?String(state.avatar.eyes):'none';
+  const id=profileStage1PartId(state.avatar?.eyes,PROFILE_STAGE1_EYES_COUNT);
   return id==='none'?'':PROFILE_STAGE1_EYES_DIR+'/eyes_'+id+'.png';
 }
 
 function profileStage1ClothesPath(){
-  const id=state.avatar&&state.avatar.clothes?String(state.avatar.clothes):'none';
+  const id=profileStage1PartId(state.avatar?.clothes,PROFILE_STAGE1_CLOTHES_COUNT);
   return id==='none'?'':PROFILE_STAGE1_CLOTHES_DIR+'/clothes_'+id+'.png';
 }
 
@@ -42,16 +49,37 @@ function profileStage1ClothesButtonsHtml(){
 
 function setProfileStage1Eyes(id){
   if(!state.avatar)state.avatar={base:'01',eyes:'none',hair:'none',clothes:'none'};
-  state.avatar.eyes=id;
+  state.avatar.eyes=profileStage1PartId(id,PROFILE_STAGE1_EYES_COUNT);
   dirty=true;
+  updateSaveState();
   renderProfileStage1();
 }
 
 function setProfileStage1Clothes(id){
   if(!state.avatar)state.avatar={base:'01',eyes:'none',hair:'none',clothes:'none'};
-  state.avatar.clothes=id;
+  state.avatar.clothes=profileStage1PartId(id,PROFILE_STAGE1_CLOTHES_COUNT);
   dirty=true;
+  updateSaveState();
   renderProfileStage1();
+}
+
+function profileStage1ImageStatus(){
+  const status=$('profileImageStatus');
+  if(!status)return;
+  const failed=[$('profileBaseImage'),$('profileClothesImage'),$('profileEyesImage')]
+    .filter(image=>image?.dataset.loadError);
+  status.textContent=failed.map(image=>image.dataset.loadError).join(' / ');
+  status.hidden=failed.length===0;
+}
+
+function profileStage1ImageSource(image,path){
+  const src=path?path+'?v='+GAME_ASSET_VERSION:'';
+  if(image.getAttribute('src')===src)return;
+  image.hidden=true;
+  delete image.dataset.loadError;
+  if(src)image.setAttribute('src',src);
+  else image.removeAttribute('src');
+  profileStage1ImageStatus();
 }
 
 function renderProfileStage1(){
@@ -64,122 +92,40 @@ function renderProfileStage1(){
   const clothes=$('profileClothesImage');
   if(clothes){
     const path=profileStage1ClothesPath();
-    if(path){
-      const src=path+'?v='+GAME_ASSET_VERSION;
-      if(clothes.getAttribute('src')!==src)clothes.setAttribute('src',src);
-      clothes.hidden=false;
-    }else{
-      clothes.hidden=true;
-      clothes.removeAttribute('src');
-    }
+    profileStage1ImageSource(clothes,path);
   }
 
   const eyes=$('profileEyesImage');
   if(eyes){
     const path=profileStage1EyesPath();
-    if(path){
-      const src=path+'?v='+GAME_ASSET_VERSION;
-      if(eyes.getAttribute('src')!==src)eyes.setAttribute('src',src);
-      eyes.hidden=false;
-    }else{
-      eyes.hidden=true;
-      eyes.removeAttribute('src');
-    }
+    profileStage1ImageSource(eyes,path);
   }
 
-  const selectedEyes=state.avatar&&state.avatar.eyes?String(state.avatar.eyes):'none';
+  const selectedEyes=profileStage1PartId(state.avatar?.eyes,PROFILE_STAGE1_EYES_COUNT);
   section.querySelectorAll('[data-profile-eye]').forEach(
-    button=>button.classList.toggle('active',button.dataset.profileEye===selectedEyes)
+    button=>{
+      const selected=button.dataset.profileEye===selectedEyes;
+      button.classList.toggle('active',selected);
+      button.setAttribute('aria-pressed',String(selected));
+    }
   );
 
-  const selectedClothes=state.avatar&&state.avatar.clothes?String(state.avatar.clothes):'none';
+  const selectedClothes=profileStage1PartId(state.avatar?.clothes,PROFILE_STAGE1_CLOTHES_COUNT);
   section.querySelectorAll('[data-profile-clothes]').forEach(
-    button=>button.classList.toggle('active',button.dataset.profileClothes===selectedClothes)
+    button=>{
+      const selected=button.dataset.profileClothes===selectedClothes;
+      button.classList.toggle('active',selected);
+      button.setAttribute('aria-pressed',String(selected));
+    }
   );
 }
 
 function installProfileStage1(){
   if(!document.getElementById('profileStage1Styles')){
-    const style=document.createElement('style');
+    const style=document.createElement('link');
     style.id='profileStage1Styles';
-    style.textContent=`
-      .app>nav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
-      #profile{padding:9px}
-      .profile-stage1-shell{max-width:760px;margin:0 auto}
-      .profile-stage1-card{background:#fffaf3;border:1px solid #ad9985;border-radius:12px;padding:11px;box-shadow:0 2px 0 #d4c6b5}
-      .profile-stage1-card h2{font-size:16px;margin:0}
-      .profile-stage1-sub{font-size:10px;color:#766b61;margin-top:2px}
-
-      .profile-stage1-avatar{
-        position:relative;
-        width:min(256px,78vw);
-        aspect-ratio:1;
-        margin:8px auto 0;
-        border:1px solid #cfbeaa;
-        border-radius:12px;
-        background:linear-gradient(#f6eddf,#eee1d0);
-        overflow:hidden
-      }
-
-      .profile-stage1-avatar img{
-        position:absolute;
-        inset:0;
-        display:block;
-        width:100%;
-        height:100%;
-        object-fit:contain;
-        pointer-events:none
-      }
-
-      .profile-avatar-base{z-index:0}
-
-      .profile-stage1-avatar .profile-avatar-clothes{
-        z-index:5
-      }
-
-      .profile-stage1-avatar .profile-avatar-eyes{
-        z-index:10;
-        inset:auto;
-        left:calc(15.36% - 2px);
-        top:6.05%;
-        width:calc(70.833% + 1px);
-        height:calc(70.833% + 1px)
-      }
-
-      .profile-stage1-eyes,
-      .profile-stage1-clothes{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        gap:7px;
-        margin-top:9px;
-        flex-wrap:wrap
-      }
-
-      .profile-stage1-eyes span,
-      .profile-stage1-clothes span{
-        font-size:11px;
-        color:#766b61;
-        margin-right:2px
-      }
-
-      .profile-stage1-eyes button,
-      .profile-stage1-clothes button{
-        min-width:54px;
-        padding:6px 10px;
-        border:1px solid #ad9985;
-        border-radius:8px;
-        background:#fffaf3;
-        color:#4d433b;
-        font:inherit
-      }
-
-      .profile-stage1-eyes button.active,
-      .profile-stage1-clothes button.active{
-        box-shadow:inset 0 0 0 2px #ad9985;
-        font-weight:700
-      }
-    `;
+    style.rel='stylesheet';
+    style.href='css/profile-stage1.css?v='+GAME_ASSET_VERSION;
     document.head.appendChild(style);
   }
 
@@ -207,10 +153,11 @@ function installProfileStage1(){
           '<div class="profile-stage1-sub">アバター</div>'+
 
           '<div class="profile-stage1-avatar">'+
-            '<img id="profileBaseImage" class="profile-avatar-base" src="'+PROFILE_STAGE1_IMAGE+'?v='+GAME_ASSET_VERSION+'" alt="共通素体">'+
+            '<img id="profileBaseImage" class="profile-avatar-base" alt="共通素体" hidden>'+
             '<img id="profileClothesImage" class="profile-avatar-clothes" alt="" hidden>'+
             '<img id="profileEyesImage" class="profile-avatar-eyes" alt="" hidden>'+
           '</div>'+
+          '<div id="profileImageStatus" class="profile-stage1-status" role="status" hidden></div>'+
 
           '<div class="profile-stage1-eyes">'+
             '<span>目</span>'+
@@ -234,6 +181,27 @@ function installProfileStage1(){
     );
 
     app.appendChild(section);
+    for(const [id,label] of [['profileBaseImage','素体'],['profileClothesImage','服'],['profileEyesImage','目']]){
+      const image=$(id);
+      image.addEventListener('load',()=>{
+        if(!image.getAttribute('src'))return;
+        if(image.naturalWidth!==128||image.naturalHeight!==128){
+          image.hidden=true;
+          image.dataset.loadError=label+'の画像サイズが一致しません';
+        }else{
+          image.hidden=false;
+          delete image.dataset.loadError;
+        }
+        profileStage1ImageStatus();
+      });
+      image.addEventListener('error',()=>{
+        if(!image.getAttribute('src'))return;
+        image.hidden=true;
+        image.dataset.loadError=label+'の画像を読み込めませんでした';
+        profileStage1ImageStatus();
+      });
+    }
+    profileStage1ImageSource($('profileBaseImage'),PROFILE_STAGE1_IMAGE);
   }
 
   renderProfileStage1();
